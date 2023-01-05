@@ -1,5 +1,29 @@
 import fetch from 'node-fetch'
 
+const fs = require('fs');
+
+function getSeconds(time) {
+	let timeSplit = time.split(':');
+	return (timeSplit[0] * 3600 + timeSplit[1] * 60 + Math.round(timeSplit[2]));
+}
+
+function getFullLogtime(data) {
+	let total = 0;
+	for (let t of Object.values(data))
+		total += getSeconds(t);
+	return (total);
+}
+
+function formatTime(secs) {
+	return (`${Math.floor(secs / 3600)}h ${Math.floor(secs / 60) % 60}m ${secs % 60}s`);
+}
+
+function formatResult(login, logtime, rank) {
+	let rank = (rank.toString() + '.').padEnd(5, ' ');
+	let login = login.padEnd(12, ' ');
+	return (rank + '|' + login + '|' + formatTime(logtime));
+}
+
 async function getToken() {
 	try {
 		const response = await fetch('https://api.intra.42.fr/oauth/token', {
@@ -39,19 +63,6 @@ async function getCampusUsers(token) {
 	}
 }
 
-function getSeconds(time) {
-	let timeSplit = time.split(':');
-	return (timeSplit[0] * 3600 + timeSplit[1] * 60 + Math.round(timeSplit[2]));
-}
-
-
-function getFullLogtime(data) {
-	let total = 0;
-	for (let t of Object.values(data))
-		total += getSeconds(t);
-	return (total);
-}
-
 async function getLogtimeRecords(token, login) {
 	try {
 		console.error(login);
@@ -69,7 +80,7 @@ async function getLogtimeRecords(token, login) {
 	} 
 }
 
-async function run() {
+async function getData() {
 	const token = await getToken();
 	const allCampusUsers = await getCampusUsers(token);
 	let res = [];
@@ -80,10 +91,26 @@ async function run() {
 			res.push({login: user.login, logtime: getFullLogtime(records)});
 		await new Promise(resolve => setTimeout(resolve, 500));
 	}
-
 	res.sort((a, b) => { return b.logtime - a.logtime; });
+	return (res);
+}
 
-	console.log(res);
+function writeData(dataset) {
+	let filename = 'result.txt'
+	fs.writeFile(filename, '', (e) => {
+		if (e)
+			throw e;
+		let rank = 1;
+		for (let data of dataset)
+			fs.appendFile(filename, formatResult(data.login, data.logtime, rank++) + '\n', (e) => {});
+	  });
+	  
+}
+
+async function run() {
+	let dataset = await getData();
+	writeData(dataset);
+	console.log('Done!');
 }
 	
 run();
