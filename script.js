@@ -28,12 +28,9 @@ async function getCampusUsers(token) {
 				headers: { Authorization: `Bearer ${token}`, },
 			});
 			const apiData = await apiResponse.json();
-			if (!apiData.length) {
-				console.error("hello?");
+			if (!apiData.length)
 				break ;
-			}
 			allCampusUsers = allCampusUsers.concat(apiData);
-			console.log(pageNb - 1, allCampusUsers.length);
 			await new Promise(resolve => setTimeout(resolve, 500));
 		}
 		return (allCampusUsers);
@@ -42,26 +39,51 @@ async function getCampusUsers(token) {
 	}
 }
 
-async function getDataFromAPI() {
+function getSeconds(time) {
+	let timeSplit = time.split(':');
+	return (timeSplit[0] * 3600 + timeSplit[1] * 60 + Math.round(timeSplit[2]));
+}
+
+
+function getFullLogtime(data) {
+	let total = 0;
+	for (let t of Object.values(data))
+		total += getSeconds(t);
+	return (total);
+}
+
+async function getLogtimeRecords(token, login) {
 	try {
-		const token = await getToken();
-		// // const allCampusUsers = await getCampusUsers(token);
-		
-		// console.log(allCampusUsers[0]);
-		
+		console.error(login);
 		const params = new URLSearchParams();
 		params.set('begin_at', '2022-01-01');
 		params.set('end_at', '2022-12-31');
-		const apiResponse = await fetch(`https://api.intra.42.fr/v2/users/min-kang/locations_stats?&${params.toString()}`, {
+		const apiResponse = await fetch(`https://api.intra.42.fr/v2/users/${login}/locations_stats?&${params.toString()}`, {
 			method: 'GET',
 			headers: { Authorization: `Bearer ${token}`, },
 		});
 		const apiData = await apiResponse.json();
-		console.log(apiData);
-	} catch (error) {
-		console.error(error);
+		return (apiData);
+	} catch (e) {
+		console.log(e);
+	} 
+}
+
+async function run() {
+	const token = await getToken();
+	const allCampusUsers = await getCampusUsers(token);
+	let res = [];
+
+	for (let user of allCampusUsers) {
+		let records = await getLogtimeRecords(token, user.login)	
+		if (records)		
+			res.push({login: user.login, logtime: getFullLogtime(records)});
+		await new Promise(resolve => setTimeout(resolve, 500));
 	}
+
+	res.sort((a, b) => { return b.logtime - a.logtime; });
+
+	console.log(res);
 }
 	
-
-getDataFromAPI();
+run();
