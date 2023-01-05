@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "node-fetch": "^3.3.0",
+    "oauth2": "^0.0.1"
+  },
+  "type": "module"
+
+}
