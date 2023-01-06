@@ -27,15 +27,32 @@ There are a couple of options you can customize in this script:
 1. By default, the script only includes active students in the final results. If you want to include all students (including those who passed the Piscine and got blackholed out), you can change this line of code (line 64):
 
         allCampusUsers = allCampusUsers.concat(apiData.filter(user => user['active?'] == true));
+
     to this:
 
         allCampusUsers = allCampusUsers.concat(apiData);
 
-2. To protect the privacy of students, the script masks the login IDs of all students except for the first two characters. If you want to see the full login IDs, you can change this line of code (line 29):
+2. By default, this script shows the full login IDs, but you have the option to mask the login IDs except for the first two characters for added privacy as you can see an example in the result.txt file in this repository. To do this, simply change this line of code (line 29):
 
-        let loginStr = formatLogin(data.login, true).padEnd(12, ' ');    
+        let loginStr = formatLogin(data.login, false).padEnd(12, ' ');    
+ 
     to this:
 
-        let loginStr = formatLogin(data.login, false).padEnd(12, ' ');
+        let loginStr = formatLogin(data.login, true).padEnd(12, ' ');
+        
+3. By default, this script checks logtime data for the entire year of 2022. However, if you want to customize the date range that is checked, you can simply modify these lines of code (line 77-78):
+
+        params.set('begin_at', '2022-01-01');
+        params.set('end_at', '2022-12-31');
+
+4. By default, this script is set to retrieve logtime data for the Nice campus using its id (41) in the API request. However, if you want to retrieve data for a different campus, you can modify this line of code (line 57-60):
+
+        const apiResponse = await fetch(https://api.intra.42.fr/v2/campus/41/users?&${params.toString()}, {
+        method: 'GET',
+        headers: { Authorization: Bearer ${token}, },
+        });
+
+    You could simply replace the 41 with the id of the desired campus. Note that you will need to know the id of the campus you want to retrieve data for.
+
 
 Enjoy the results and let me know if you have any further questions! 😁
