@@ -20,10 +20,11 @@ function formatTime(secs) {
 	return (`${Math.floor(secs / 3600)}h ${Math.floor(secs / 60) % 60}m ${secs % 60}s`);
 }
 
-function formatResult(login, logtime, rank) {
-	let rankStr = (rank.toString() + '.').padEnd(5, ' ');
-	let loginStr = login.padEnd(12, ' ');
-	return (rankStr + '| ' + loginStr + '| ' + formatTime(logtime));
+function formatResult(data, rank) {
+	let rankStr = rank.toString().padEnd(5, ' ');
+	let loginStr = data.login.padEnd(12, ' ');
+	let logtimeStr = formatTime(data.logtime).padEnd(16, ' ')
+	return (`${rankStr}| ${loginStr}| ${logtimeStr}| ${data.days} Days`);
 }
 
 async function getToken() {
@@ -88,9 +89,9 @@ async function getData() {
 	let res = [];
 
 	for (let user of allCampusUsers) {
-		let records = await getLogtimeRecords(token, user.login)	
+		let records = await getLogtimeRecords(token, user.login);
 		if (records)		
-			res.push({login: user.login, logtime: getFullLogtime(records)});
+			res.push({login: user.login, logtime: getFullLogtime(records), days: Object.keys(records).length});
 		await new Promise(resolve => setTimeout(resolve, 500));
 	}
 	res.sort((a, b) => { return b.logtime - a.logtime; });
@@ -101,7 +102,7 @@ function writeData(dataset) {
 	let filename = 'result.txt'
 	fs.writeFileSync(filename, '');
 	for (let i = 0; i < dataset.length; i++)
-		fs.appendFileSync(filename, formatResult(dataset[i].login, dataset[i].logtime, i + 1) + '\n');
+		fs.appendFileSync(filename, formatResult(dataset[i], i + 1) + '\n');
 }
 
 async function run() {
