@@ -1,1 +1,1 @@
-# 42LogtimeRank
+# Daily-42NiceLogtimeRankings2022
