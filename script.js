@@ -9,6 +9,10 @@ function getSeconds(time) {
 	return (timeSplit[0] * 3600 + timeSplit[1] * 60 + Math.round(timeSplit[2]));
 }
 
+function formatLogin(login, hide) {
+	return ((hide) ? login.replace(/^(.{2})(.+)/, "$1" + "*".repeat(login.length - 2)) : login);
+}
+
 function getFullLogtime(data) {
 	let total = 0;
 	for (let t of Object.values(data))
@@ -22,7 +26,7 @@ function formatTime(secs) {
 
 function formatResult(data, rank) {
 	let rankStr = rank.toString().padEnd(5, ' ');
-	let loginStr = data.login.padEnd(12, ' ');
+	let loginStr = formatLogin(data.login, true).padEnd(12, ' ');
 	let logtimeStr = formatTime(data.logtime).padEnd(16, ' ')
 	return (`${rankStr}| ${loginStr}| ${logtimeStr}| ${data.days} Days`);
 }
