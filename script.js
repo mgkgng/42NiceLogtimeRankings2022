@@ -1,6 +1,8 @@
-import fetch from 'node-fetch'
+import fetch from 'node-fetch';
+import * as fs from 'fs';
 
-const fs = require('fs');
+const UID = 'YOUR UID';
+const SECRET = 'YOUR SECRET KEY';
 
 function getSeconds(time) {
 	let timeSplit = time.split(':');
@@ -19,9 +21,9 @@ function formatTime(secs) {
 }
 
 function formatResult(login, logtime, rank) {
-	let rank = (rank.toString() + '.').padEnd(5, ' ');
-	let login = login.padEnd(12, ' ');
-	return (rank + '|' + login + '|' + formatTime(logtime));
+	let rankStr = (rank.toString() + '.').padEnd(5, ' ');
+	let loginStr = login.padEnd(12, ' ');
+	return (rankStr + '| ' + loginStr + '| ' + formatTime(logtime));
 }
 
 async function getToken() {
@@ -45,7 +47,7 @@ async function getCampusUsers(token) {
 		while (++pageNb) {
 			const params = new URLSearchParams();
 			params.set('filter[kind]', 'student');
-			params.set('page[number]', pageNb - 1);
+			params.set('page[number]', pageNb);
 			params.set('page[size]', 100);
 			const apiResponse = await fetch(`https://api.intra.42.fr/v2/campus/41/users?&${params.toString()}`, {
 				method: 'GET',
@@ -54,7 +56,7 @@ async function getCampusUsers(token) {
 			const apiData = await apiResponse.json();
 			if (!apiData.length)
 				break ;
-			allCampusUsers = allCampusUsers.concat(apiData);
+			allCampusUsers = allCampusUsers.concat(apiData.filter(user => user['active?'] == true));
 			await new Promise(resolve => setTimeout(resolve, 500));
 		}
 		return (allCampusUsers);
@@ -97,14 +99,9 @@ async function getData() {
 
 function writeData(dataset) {
 	let filename = 'result.txt'
-	fs.writeFile(filename, '', (e) => {
-		if (e)
-			throw e;
-		let rank = 1;
-		for (let data of dataset)
-			fs.appendFile(filename, formatResult(data.login, data.logtime, rank++) + '\n', (e) => {});
-	  });
-	  
+	fs.writeFileSync(filename, '');
+	for (let i = 0; i < dataset.length; i++)
+		fs.appendFileSync(filename, formatResult(dataset[i].login, dataset[i].logtime, i + 1) + '\n');
 }
 
 async function run() {
