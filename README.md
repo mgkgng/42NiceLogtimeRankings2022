@@ -24,7 +24,7 @@ Once the script has finished running, you can find the results in the result.txt
 
 There are a couple of options you can customize in this script:
 
-1. By default, the script only includes active students in the final results. If you want to include all students (including those who passed the Piscine and got blackholed out), you can change this line of code:
+1. By default, the script only includes active students in the final results. If you want to include all students (including those who passed the Piscine and got blackholed out), you can change this line of code (line 64):
 
         allCampusUsers = allCampusUsers.concat(apiData.filter(user => user['active?'] == true));
 
@@ -32,7 +32,7 @@ There are a couple of options you can customize in this script:
 
         allCampusUsers = allCampusUsers.concat(apiData);
 
-2. To protect the privacy of students, the script masks the login IDs of all students except for the first two characters. If you want to see the full login IDs, you can change this line of code:
+2. To protect the privacy of students, the script masks the login IDs of all students except for the first two characters. If you want to see the full login IDs, you can change this line of code (line 29):
 
         let loginStr = formatLogin(data.login, true).padEnd(12, ' ');
         
