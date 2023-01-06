@@ -4,6 +4,11 @@ import * as fs from 'fs';
 const UID = 'YOUR UID';
 const SECRET = 'YOUR SECRET KEY';
 
+function print(str) {
+	console.clear();
+	console.log(str);
+}
+
 function getSeconds(time) {
 	let timeSplit = time.split(':');
 	return (timeSplit[0] * 3600 + timeSplit[1] * 60 + Math.round(timeSplit[2]));
@@ -26,7 +31,7 @@ function formatTime(secs) {
 
 function formatResult(data, rank) {
 	let rankStr = rank.toString().padEnd(5, ' ');
-	let loginStr = formatLogin(data.login, true).padEnd(12, ' ');
+	let loginStr = formatLogin(data.login, false).padEnd(12, ' ');
 	let logtimeStr = formatTime(data.logtime).padEnd(16, ' ')
 	return (`${rankStr}| ${loginStr}| ${logtimeStr}| ${data.days} Days`);
 }
@@ -50,6 +55,7 @@ async function getCampusUsers(token) {
 		let pageNb = 0;
 		let allCampusUsers = [];
 		while (++pageNb) {
+			print(`Retrieving a list of all students from the campus... ${allCampusUsers.length} students...`);
 			const params = new URLSearchParams();
 			params.set('filter[kind]', 'student');
 			params.set('page[number]', pageNb);
@@ -62,6 +68,7 @@ async function getCampusUsers(token) {
 			if (!apiData.length)
 				break ;
 			allCampusUsers = allCampusUsers.concat(apiData.filter(user => user['active?'] == true));
+			print(`Retrieving a list of all students from the campus... ${allCampusUsers.length} students...`);
 			await new Promise(resolve => setTimeout(resolve, 500));
 		}
 		return (allCampusUsers);
@@ -72,7 +79,6 @@ async function getCampusUsers(token) {
 
 async function getLogtimeRecords(token, login) {
 	try {
-		console.error(login);
 		const params = new URLSearchParams();
 		params.set('begin_at', '2022-01-01');
 		params.set('end_at', '2022-12-31');
@@ -92,10 +98,11 @@ async function getData() {
 	const allCampusUsers = await getCampusUsers(token);
 	let res = [];
 
-	for (let user of allCampusUsers) {
-		let records = await getLogtimeRecords(token, user.login);
+	for (let i = 0; i < allCampusUsers.length; i++) {
+		print(`Retreiving data for ${allCampusUsers[i].login}... ${i + 1} / ${allCampusUsers.length}`);
+		let records = await getLogtimeRecords(token, allCampusUsers[i].login);
 		if (records)		
-			res.push({login: user.login, logtime: getFullLogtime(records), days: Object.keys(records).length});
+			res.push({login: allCampusUsers[i].login, logtime: getFullLogtime(records), days: Object.keys(records).length});
 		await new Promise(resolve => setTimeout(resolve, 500));
 	}
 	res.sort((a, b) => { return b.logtime - a.logtime; });
@@ -110,9 +117,10 @@ function writeData(dataset) {
 }
 
 async function run() {
+	print('Initializing...');
 	let dataset = await getData();
 	writeData(dataset);
-	console.log('Done!');
+	print('All done! Check out the result.txt file to see the results!');
 }
-	
+
 run();
