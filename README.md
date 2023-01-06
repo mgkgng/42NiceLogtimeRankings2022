@@ -9,7 +9,7 @@ First of all, you'll need to have Node.js installed on your machine to use this 
 1. Open a terminal and navigate to the directory where you have cloned or downloaded the project.
 Run the following command to install all the required packages:
 
-    npm install
+        npm install
 
 2. In the script.js file, replace the placeholders YOUR UID and YOUR SECRET KEY with your own API information.
 
@@ -28,15 +28,16 @@ There are a couple of options you can customize in this script:
 
         allCampusUsers = allCampusUsers.concat(apiData.filter(user => user['active?'] == true));
 
-to this:
+    to this:
 
-    allCampusUsers = allCampusUsers.concat(apiData);
+        allCampusUsers = allCampusUsers.concat(apiData);
 
 2. To protect the privacy of students, the script masks the login IDs of all students except for the first two characters. If you want to see the full login IDs, you can change this line of code:
 
         let loginStr = formatLogin(data.login, true).padEnd(12, ' ');
-to this:
+        
+    to this:
 
-    let loginStr = formatLogin(data.login, false).padEnd(12, ' ');
+        let loginStr = formatLogin(data.login, false).padEnd(12, ' ');
 
-Enjoy the results and let me know if you have any further questions!
+Enjoy the results and let me know if you have any further questions 😁!
