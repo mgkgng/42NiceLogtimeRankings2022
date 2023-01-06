@@ -48,8 +48,8 @@ There are a couple of options you can customize in this script:
 4. By default, this script is set to retrieve logtime data for the Nice campus using its id (41) in the API request. However, if you want to retrieve data for a different campus, you can modify this line of code (line 57-60):
 
         const apiResponse = await fetch(https://api.intra.42.fr/v2/campus/41/users?&${params.toString()}, {
-        method: 'GET',
-        headers: { Authorization: Bearer ${token}, },
+                method: 'GET',
+                headers: { Authorization: Bearer ${token}, },
         });
 
     You could simply replace the 41 with the id of the desired campus. Note that you will need to know the id of the campus you want to retrieve data for.
